@@ -10,9 +10,8 @@
           clearable
           label="Cidade centro"
         >
-          <template v-slot:item="{ item }">
-            {{ item.nome }} - {{findUF(item.codigo_uf)}}
-          </template>
+          <template v-slot:item="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
+          <template v-slot:selection="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
         </v-autocomplete>
       </v-col>
       <v-col class="mx-auto" mx="auto" md="4" sm="6">
@@ -58,9 +57,9 @@ export default {
         var resultado = (this.getDistanceFromLatLonInKm(this.findCIDADE(this.cidadeEscolhida), obj) / 1000).toFixed(3);
 
         if (resultado < raio) {
-          var nomeUF = this.findUF(obj.codigo_uf);
+          var rUF = this.findUF(obj.codigo_uf);
 
-          this.mov.push({ cidade: obj.nome, distancia: resultado, uf: nomeUF });
+          this.mov.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome });
         }
       }
     },
@@ -81,7 +80,7 @@ export default {
 
     findUF(id) {
       var teste = UF.findIndex((x) => x.codigo_uf === id);
-      return UF[teste].nome;
+      return UF[teste];
     },
     findCIDADE(ibge) {
       var teste = Cidades.findIndex((x) => x.codigo_ibge === ibge);
