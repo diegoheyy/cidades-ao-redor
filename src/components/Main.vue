@@ -34,7 +34,7 @@ import Cidades from "../data/cidades.json";
 import UF from "../data/uf.json";
 
 export default {
-  name: "HelloWorld",
+  name: "Main",
   data: () => ({
     header: [
       { text: "Cidade", value: "cidade" },

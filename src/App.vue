@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-app-bar-title>Cidades ao redor </v-app-bar-title>
+      <v-app-bar-title>Cidades ao redor</v-app-bar-title>
       <v-spacer></v-spacer>
 
       <v-btn href="https://google.com" target="_blank" text>
