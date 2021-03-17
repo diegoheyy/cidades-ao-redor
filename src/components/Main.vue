@@ -9,7 +9,11 @@
           item-text="nome"
           clearable
           label="Cidade centro"
-        ></v-autocomplete>
+        >
+          <template v-slot:item="{ item }">
+            {{ item.nome }} - {{findUF(item.codigo_uf)}}
+          </template>
+        </v-autocomplete>
       </v-col>
       <v-col class="mx-auto" mx="auto" md="4" sm="6">
         <v-text-field class="centered-input" v-model="raio" type="number" suffix="Km" label="Raio" required></v-text-field>
