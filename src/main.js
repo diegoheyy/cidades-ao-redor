@@ -6,7 +6,10 @@ import VueAnalytics from 'vue-analytics';
 
 
 Vue.use(VueAnalytics, {
-  id: 'G-HK1MZ7ZS4M'
+  id: 'G-HK1MZ7ZS4M',
+  autoTracking: {
+    screenview: true
+  }
 })
 Vue.config.productionTip = false
 

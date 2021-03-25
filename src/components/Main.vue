@@ -74,6 +74,7 @@ export default {
     //     },
 
     calcularDistancia(raio) {
+      this.eventTracking();
       this.loading = true;
       this.mov = [];
 
@@ -118,6 +119,14 @@ export default {
     findCIDADE(ibge) {
       var teste = Cidades.findIndex((x) => x.codigo_ibge === ibge);
       return Cidades[teste];
+    },
+    eventTracking() {
+      this.$ga.event({
+        eventCategory: "Ver cidades",
+        eventAction: "action",
+        eventLabel: "Botao de Gerar",
+        eventValue: 1,
+      });
     },
   },
 };
