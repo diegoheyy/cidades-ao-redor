@@ -32,6 +32,7 @@
 <script>
 import Cidades from "../data/cidades.json";
 import UF from "../data/uf.json";
+// import axios from "axios";
 
 export default {
   name: "Main",
@@ -47,6 +48,18 @@ export default {
     cidades: Cidades,
   }),
   methods: {
+
+// getTurma() {
+//       let id = this.$route.params.id;
+//       const url = `http://localhost:4000/turma/${id}`;
+//       axios.get(url).then((res) => {
+//         this.turma = res.data;
+//         console.log(this.turma);
+//         this.alunosTurma = this.turma.alunos;
+//         this.disciplinasTurma = this.turma.disciplinas;
+//       });
+//     },
+
     calcularDistancia(raio) {
       this.mov = [];
 
