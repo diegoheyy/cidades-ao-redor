@@ -23,7 +23,19 @@
     </row>
     <row>
       <v-col>
-        <v-data-table :items="mov" :headers="header"> </v-data-table>
+        <v-data-table
+          :items="mov"
+          :headers="header"
+          sort-by="distancia"
+          :sort-desc="false"
+          :search="search"
+          :loading="loading"
+          loading-text="Carregando... Um momento por favor."
+        >
+          <template v-slot:top>
+            <v-text-field v-model="search" label="Procurar" class="mx-4"></v-text-field>
+          </template>
+        </v-data-table>
       </v-col>
     </row>
   </v-container>
@@ -37,6 +49,8 @@ import UF from "../data/uf.json";
 export default {
   name: "Main",
   data: () => ({
+    search: "",
+    loading: false,
     header: [
       { text: "Cidade", value: "cidade" },
       { text: "Distancia", value: "distancia" },
@@ -44,26 +58,31 @@ export default {
     ],
     mov: [],
     raio: 0,
-    cidadeEscolhida: Object,
+    cidadeEscolhida: "",
     cidades: Cidades,
   }),
   methods: {
-
-// getTurma() {
-//       let id = this.$route.params.id;
-//       const url = `http://localhost:4000/turma/${id}`;
-//       axios.get(url).then((res) => {
-//         this.turma = res.data;
-//         console.log(this.turma);
-//         this.alunosTurma = this.turma.alunos;
-//         this.disciplinasTurma = this.turma.disciplinas;
-//       });
-//     },
+    // getTurma() {
+    //       let id = this.$route.params.id;
+    //       const url = `http://localhost:4000/turma/${id}`;
+    //       axios.get(url).then((res) => {
+    //         this.turma = res.data;
+    //         console.log(this.turma);
+    //         this.alunosTurma = this.turma.alunos;
+    //         this.disciplinasTurma = this.turma.disciplinas;
+    //       });
+    //     },
 
     calcularDistancia(raio) {
+      this.loading = true;
       this.mov = [];
 
-      console.log(this.cidadeEscolhida, raio);
+      if (this.cidadeEscolhida === "") {
+        this.loading = false;
+
+        return;
+      }
+
       for (var key in Cidades) {
         var obj = Cidades[key];
 
@@ -75,6 +94,7 @@ export default {
           this.mov.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome });
         }
       }
+      this.loading = false;
     },
 
     getDistanceFromLatLonInKm(position1, position2) {
