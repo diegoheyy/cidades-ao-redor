@@ -1,16 +1,14 @@
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
-import VueAnalytics from 'vue-analytics';
+import VueGtag from "vue-gtag";
+
+Vue.use(VueGtag, {
+  config: { id: "G-HK1MZ7ZS4M" }
+});
 
 
 
-Vue.use(VueAnalytics, {
-  id: 'G-HK1MZ7ZS4M',
-  autoTracking: {
-    screenview: true
-  }
-})
 Vue.config.productionTip = false
 
 

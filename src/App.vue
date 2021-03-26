@@ -29,19 +29,14 @@ export default {
   data: () => ({
     //
   }),
-   methods: {
-     visitaPerfil(){
-       this.$ga.event({
-        eventCategory: "Perfil",
-        eventAction: "ação de link",
-        eventLabel: "Botao de Gerar",
-        eventValue: 1,
+  methods: {
+    visitaPerfil() {
+      this.$gtag.event("Botão - Ver Perfil", {
+        event_category: "Perfil",
+        event_label: "Ver perfil do Github",
+        value: 1,
       });
-
-
-     }
-
-   }
-
+    },
+  },
 };
 </script>

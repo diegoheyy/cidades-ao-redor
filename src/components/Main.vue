@@ -121,12 +121,11 @@ export default {
       return Cidades[teste];
     },
     eventTracking() {
-      this.$ga.event({
-        eventCategory: "Ver cidades",
-        eventAction: "action",
-        eventLabel: "Botao de Gerar",
-        eventValue: 1,
-      });
+     this.$gtag.event('Botão - Listar Cidades', {
+        'event_category': 'cidades',
+        'event_label': "Ver cidades ao redor",
+        'value': 1
+      })
     },
   },
 };
