@@ -1,5 +1,15 @@
 # banco-frontend
 
+[x] Visualização em lista no mobile
+[] Mostrar carregamento da tabela
+[] Melhoria na busca (performance)
+[] Formatar distância
+[] Desconsiderar acentuação
+[] ajustar textfield da distancia
+[] Integrar com APIs 
+
+
+
 ## Project setup
 ```
 npm install
