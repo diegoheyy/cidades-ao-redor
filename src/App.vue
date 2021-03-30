@@ -4,8 +4,8 @@
       <v-app-bar-title>Cidades ao redor</v-app-bar-title>
       <v-spacer></v-spacer>
 
-      <v-btn @click="visitaPerfil()" href="https://github.com/diegoheyy" target="_blank" text>
-        <span class="mr-2">Vem conhecer</span>
+      <v-btn @click="visitaPerfil()" href="https://github.com/diegoheyy/cidades-ao-redor" target="_blank" text>
+        <span class="mr-2">Github</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
