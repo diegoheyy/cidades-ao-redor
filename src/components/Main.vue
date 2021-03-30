@@ -12,6 +12,7 @@
             label="Cidade centro"
             :filter="filterItems"
             required
+            no-data-text="Cidade não encontrada"
           >
             <template v-slot:item="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
             <template v-slot:selection="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
