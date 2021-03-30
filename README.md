@@ -1,13 +1,14 @@
 # banco-frontend
 
 [x] Visualização em lista no mobile
-[] Mostrar carregamento da tabela
+[x] Mostrar carregamento da tabela
+[x] Formatar distância
+[x] Desconsiderar acentuação (normalize)
+[x] ajustar textfield da distancia
+[x] botão enter para buscar
 [] Melhoria na busca (performance)
-[] Formatar distância
-[] Desconsiderar acentuação
-[] ajustar textfield da distancia
 [] Integrar com APIs 
-
+[] Exportar CSV
 
 
 ## Project setup

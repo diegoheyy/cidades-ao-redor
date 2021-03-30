@@ -1,26 +1,31 @@
 <template>
   <v-container>
-    <row cols="12">
-      <v-col class="mx-auto" mx="auto" md="4" sm="6">
-        <v-autocomplete
-          v-model="cidadeEscolhida"
-          item-value="codigo_ibge"
-          :items="cidades"
-          item-text="nome"
-          clearable
-          label="Cidade centro"
-        >
-          <template v-slot:item="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
-          <template v-slot:selection="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
-        </v-autocomplete>
-      </v-col>
-      <v-col class="mx-auto" mx="auto" md="4" sm="6">
-        <v-text-field class="centered-input" v-model="raio" type="number" suffix="Km" label="Raio" required></v-text-field>
-      </v-col>
-      <v-col class="text-center">
-        <v-btn color="success" @click="calcularDistancia(parseInt(raio))">Gerar</v-btn>
-      </v-col>
-    </row>
+    <v-form @submit.prevent="calcularDistancia(parseInt(raio))">
+      <row cols="12">
+        <v-col class="mx-auto" mx="auto" md="4" sm="6">
+          <v-autocomplete
+            v-model="cidadeEscolhida"
+            item-value="codigo_ibge"
+            :items="cidades"
+            item-text="nome"
+            clearable
+            label="Cidade centro"
+            :filter="filterItems"
+            required
+          >
+            <template v-slot:item="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
+            <template v-slot:selection="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
+          </v-autocomplete>
+        </v-col>
+        <v-col class="mx-auto" mx="auto" md="4" sm="6">
+          <v-text-field class="centered-input" v-model="raio" type="number" suffix="Km" label="Raio" required></v-text-field>
+        </v-col>
+        <v-col class="text-center">
+          <v-btn type="submit" color="success">Gerar</v-btn>
+        </v-col>
+      </row>
+    </v-form>
+
     <row>
       <v-col>
         <v-data-table
@@ -29,11 +34,23 @@
           sort-by="distancia"
           :sort-desc="false"
           :search="search"
+          :custom-filter="filterItemsTable"
           :loading="loading"
           loading-text="Carregando... Um momento por favor."
+          no-data-text="Nenhuma cidade, tente alterar o raio."
+          no-results-text="Nenhuma cidade encontrada, tente outro termo."
+          :mobile-breakpoint="0"
+          :footer-props="{
+            itemsPerPageText: 'Cidades por página',
+            showFirstLastPage: true,
+            itemsPerPageAllText: 'Todas',
+          }"
         >
           <template v-slot:top>
-            <v-text-field v-model="search" label="Procurar" class="mx-4"></v-text-field>
+            <v-text-field outlined clearable v-model="search" label="Procurar" class="mx-4"></v-text-field>
+          </template>
+          <template v-slot:item.distancia="{ item }">
+            {{ formateDistancia(item.distancia) }}
           </template>
         </v-data-table>
       </v-col>
@@ -44,6 +61,7 @@
 <script>
 import Cidades from "../data/cidades.json";
 import UF from "../data/uf.json";
+
 // import axios from "axios";
 
 export default {
@@ -53,14 +71,15 @@ export default {
     loading: false,
     header: [
       { text: "Cidade", value: "cidade" },
-      { text: "Distancia", value: "distancia" },
+      { text: "Distancia", align: "end", value: "distancia" },
       { text: "UF", value: "uf" },
     ],
     mov: [],
-    raio: 0,
+    raio: "",
     cidadeEscolhida: "",
     cidades: Cidades,
   }),
+
   methods: {
     // getTurma() {
     //       let id = this.$route.params.id;
@@ -73,29 +92,67 @@ export default {
     //       });
     //     },
 
+    filterItemsTable(value, search) {
+      return (
+        value != null &&
+        search != null &&
+        typeof value === "string" &&
+        value
+          .toString()
+          .toLocaleLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .indexOf(
+            search
+              .toLocaleLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+          ) !== -1
+      );
+    },
+
+    filterItems(item, queryText, itemText) {
+      return (
+        itemText
+          .toLocaleLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .indexOf(
+            queryText
+              .toLocaleLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+          ) > -1
+      );
+    },
     calcularDistancia(raio) {
       this.eventTracking();
       this.loading = true;
       this.mov = [];
-
-      if (this.cidadeEscolhida === "") {
+      if (this.cidadeEscolhida === "" || this.cidadeEscolhida === null) {
         this.loading = false;
-
         return;
       }
+      this.getData(raio).then((data) => {
+        this.mov = data.items;
+        this.loading = false;
+      });
+    },
 
-      for (var key in Cidades) {
-        var obj = Cidades[key];
-
-        var resultado = (this.getDistanceFromLatLonInKm(this.findCIDADE(this.cidadeEscolhida), obj) / 1000).toFixed(3);
-
-        if (resultado < raio) {
-          var rUF = this.findUF(obj.codigo_uf);
-
-          this.mov.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome });
+    getData(raio) {
+      return new Promise((resolve) => {
+        let items = [];
+        for (var key in Cidades) {
+          var obj = Cidades[key];
+          var resultado = (this.getDistanceFromLatLonInKm(this.findCIDADE(this.cidadeEscolhida), obj) / 1000).toFixed(3);
+          if (resultado < raio) {
+            var rUF = this.findUF(obj.codigo_uf);
+            items.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome });
+          }
         }
-      }
-      this.loading = false;
+
+        resolve({ items });
+      });
     },
 
     getDistanceFromLatLonInKm(position1, position2) {
@@ -120,12 +177,16 @@ export default {
       var teste = Cidades.findIndex((x) => x.codigo_ibge === ibge);
       return Cidades[teste];
     },
+    formateDistancia(str) {
+      return str.replace(".", ",") + " km";
+    },
+
     eventTracking() {
-     this.$gtag.event('Botão - Listar Cidades', {
-        'event_category': 'cidades',
-        'event_label': "Ver cidades ao redor",
-        'value': 1
-      })
+      this.$gtag.event("Botão - Listar Cidades", {
+        event_category: "cidades",
+        event_label: "Ver cidades ao redor",
+        value: 1,
+      });
     },
   },
 };
