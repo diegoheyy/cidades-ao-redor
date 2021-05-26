@@ -14,13 +14,25 @@
             required
             no-data-text="Cidade não encontrada"
           >
-            <template v-slot:item="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
-            <template v-slot:selection="{ item }"> {{ item.nome }} - {{ findUF(item.codigo_uf).uf }} </template>
+            <template v-slot:item="{ item }">
+              {{ item.nome }} - {{ findUF(item.codigo_uf).uf }}
+            </template>
+            <template v-slot:selection="{ item }">
+              {{ item.nome }} - {{ findUF(item.codigo_uf).uf }}
+            </template>
           </v-autocomplete>
         </v-col>
         <v-col class="mx-auto" mx="auto" md="4" sm="6">
-          <v-text-field class="centered-input" v-model="raio" type="number" suffix="Km" label="Raio" required></v-text-field>
+          <v-text-field
+            class="centered-input"
+            v-model="raio"
+            type="number"
+            suffix="Km"
+            label="Raio"
+            required
+          ></v-text-field>
         </v-col>
+
         <v-col class="text-center">
           <v-btn type="submit" color="success">Gerar</v-btn>
         </v-col>
@@ -48,7 +60,20 @@
           }"
         >
           <template v-slot:top>
-            <v-text-field outlined clearable v-model="search" label="Procurar" class="mx-4"></v-text-field>
+            <v-text-field
+              outlined
+              clearable
+              v-model="search"
+              label="Procurar"
+              class="mx-4"
+            ></v-text-field>
+            <v-btn
+              :disabled="npodeExportar"
+              @click="exportar(header, mov)"
+              x-small
+              color="info"
+              >.CSV</v-btn
+            >
           </template>
           <template v-slot:item.distancia="{ item }">
             {{ formateDistancia(item.distancia) }}
@@ -63,7 +88,7 @@
 import Cidades from "../data/cidades.json";
 import UF from "../data/uf.json";
 import DDD from "../data/ddd.json";
-
+const { Parser } = require("json2csv");
 // import axios from "axios";
 
 export default {
@@ -82,7 +107,11 @@ export default {
     cidadeEscolhida: "",
     cidades: Cidades,
   }),
-
+  computed: {
+    npodeExportar: function () {
+      return this.mov.length ? false : true;
+    },
+  },
   methods: {
     filterItemsTable(value, search) {
       return (
@@ -136,20 +165,30 @@ export default {
         let items = [];
         for (var key in Cidades) {
           var obj = Cidades[key];
-          var resultado = (this.getDistanceFromLatLonInKm(this.findCIDADE(this.cidadeEscolhida), obj) / 1000).toFixed(3);
+          var resultado = (
+            this.getDistanceFromLatLonInKm(
+              this.findCIDADE(this.cidadeEscolhida),
+              obj
+            ) / 1000
+          ).toFixed(3);
           if (resultado <= raio) {
             var rUF = this.findUF(obj.codigo_uf);
             var dddcit = this.findDDD(obj.codigo_ibge);
-            items.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome, ddd: dddcit.ddd });
+            items.push({
+              codigo_ibge: obj.codigo_ibge,
+              cidade: obj.nome,
+              distancia: resultado,
+              uf: rUF.nome,
+              ddd: dddcit.ddd,
+            });
           }
         }
-
         resolve({ items });
       });
     },
 
     getDistanceFromLatLonInKm(position1, position2) {
-      var deg2rad = function(deg) {
+      var deg2rad = function (deg) {
           return deg * (Math.PI / 180);
         },
         R = 6371,
@@ -157,7 +196,10 @@ export default {
         dLng = deg2rad(position2.longitude - position1.longitude),
         a =
           Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(deg2rad(position1.latitude)) * Math.cos(deg2rad(position1.latitude)) * Math.sin(dLng / 2) * Math.sin(dLng / 2),
+          Math.cos(deg2rad(position1.latitude)) *
+            Math.cos(deg2rad(position1.latitude)) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2),
         c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return (R * c * 1000).toFixed();
     },
@@ -176,13 +218,35 @@ export default {
 
       return Cidades[cid];
     },
-      findDDD(ibge) {
+    findDDD(ibge) {
       var cid = DDD.findIndex((x) => x.ibge === ibge);
       return DDD[cid];
     },
-    
+
     formateDistancia(str) {
       return str.replace(".", ",") + " km";
+    },
+
+    exportar(fields, myData) {
+      const opts = { fields, delimiter: ";" };
+
+      try {
+        const parser = new Parser(opts);
+        const csv = parser.parse(myData);
+        console.log(csv);
+
+        var FileSaver = require("file-saver");
+        var blob = new Blob(["\uFEFF" + csv], {
+          type: "text/csv; charset=UTF-8",
+          autoBom: true,
+        });
+        FileSaver.saveAs(
+          blob,
+          `${this.cidadeEscolhida} - Cidades ao Redor.csv`
+        );
+      } catch (err) {
+        console.error(err);
+      }
     },
 
     eventTracking() {

@@ -10,6 +10,8 @@
   "dependencies": {
     "banking": "^1.2.0",
     "core-js": "^3.6.5",
+    "file-saver": "^2.0.5",
+    "json2csv": "^5.0.6",
     "vue": "^2.6.11",
     "vue-gtag": "^1.11.0",
     "vuetify": "^2.2.11"
