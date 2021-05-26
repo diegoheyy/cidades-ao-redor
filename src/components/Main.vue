@@ -62,6 +62,7 @@
 <script>
 import Cidades from "../data/cidades.json";
 import UF from "../data/uf.json";
+import DDD from "../data/ddd.json";
 
 // import axios from "axios";
 
@@ -74,6 +75,7 @@ export default {
       { text: "Cidade", value: "cidade" },
       { text: "Distancia", align: "end", value: "distancia" },
       { text: "UF", value: "uf" },
+      { text: "DDD", value: "ddd" },
     ],
     mov: [],
     raio: "",
@@ -82,17 +84,6 @@ export default {
   }),
 
   methods: {
-    // getTurma() {
-    //       let id = this.$route.params.id;
-    //       const url = `http://localhost:4000/turma/${id}`;
-    //       axios.get(url).then((res) => {
-    //         this.turma = res.data;
-    //         console.log(this.turma);
-    //         this.alunosTurma = this.turma.alunos;
-    //         this.disciplinasTurma = this.turma.disciplinas;
-    //       });
-    //     },
-
     filterItemsTable(value, search) {
       return (
         value != null &&
@@ -146,9 +137,10 @@ export default {
         for (var key in Cidades) {
           var obj = Cidades[key];
           var resultado = (this.getDistanceFromLatLonInKm(this.findCIDADE(this.cidadeEscolhida), obj) / 1000).toFixed(3);
-          if (resultado < raio) {
+          if (resultado <= raio) {
             var rUF = this.findUF(obj.codigo_uf);
-            items.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome });
+            var dddcit = this.findDDD(obj.codigo_ibge);
+            items.push({ cidade: obj.nome, distancia: resultado, uf: rUF.nome, ddd: dddcit.ddd });
           }
         }
 
@@ -175,9 +167,20 @@ export default {
       return UF[teste];
     },
     findCIDADE(ibge) {
-      var teste = Cidades.findIndex((x) => x.codigo_ibge === ibge);
-      return Cidades[teste];
+      var cid = Cidades.findIndex((x) => x.codigo_ibge === ibge);
+      // var dddcid = DDD.findIndex((x) => x.ibge === ibge);
+      // cid ={
+      //   ...cid,
+      //   ddd : dddcid.ddd
+      // }
+
+      return Cidades[cid];
     },
+      findDDD(ibge) {
+      var cid = DDD.findIndex((x) => x.ibge === ibge);
+      return DDD[cid];
+    },
+    
     formateDistancia(str) {
       return str.replace(".", ",") + " km";
     },
